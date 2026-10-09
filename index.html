@@ -209,7 +209,7 @@ function showList(){
   if(!shown.length){list.innerHTML='<div class="opt"><small>No club matches that name</small></div>'}
   shown.forEach((c,i)=>{const d=document.createElement('div');d.className='opt';d.setAttribute('role','option');d.id='opt'+i;
     const a=document.createElement('span');a.textContent=c.name;const b=document.createElement('small');b.textContent=c.region.replace(/,? ?[A-Z]{2}$/,'');d.append(a,b);
-    d.addEventListener('mousedown',e=>{e.preventDefault();pick(c)});list.append(d)});
+    d.addEventListener('mousedown',e=>e.preventDefault());d.addEventListener('click',()=>pick(c));list.append(d)});
   list.hidden=false;inp.setAttribute('aria-expanded','true');
 }
 function hideList(){list.hidden=true;inp.setAttribute('aria-expanded','false')}
@@ -219,12 +219,14 @@ for(const k of Object.keys(PROV))if(COURSES.some(c=>c.prov===k))$('prov').add(ne
 $('prov').addEventListener('change',()=>{const v=$('prov').value;course=null;station=null;inp.value='';inp.disabled=!v;inp.placeholder=v?'Start typing a club name or town':'Select a province first';$('stationPanel').hidden=$('results').hidden=$('detail').hidden=true;$('go').disabled=true;$('status').textContent='';if(v)inp.focus()});
 inp.addEventListener('focus',()=>{inp.select();showList()});
 inp.addEventListener('input',showList);
-inp.addEventListener('blur',()=>{hideList();if(course)inp.value=course.name});
+const settle=()=>{if(list.hidden)return;hideList();if(course)inp.value=course.name};
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.combo'))settle()},true);
+inp.addEventListener('click',()=>{if(list.hidden&&!inp.disabled)showList()});
 inp.addEventListener('keydown',e=>{
   if(e.key=='ArrowDown'||e.key=='ArrowUp'){e.preventDefault();if(list.hidden)showList();active=(active+(e.key=='ArrowDown'?1:-1)+shown.length)%shown.length;
     [...list.children].forEach((o,i)=>o.setAttribute('aria-selected',i==active));list.children[active]?.scrollIntoView({block:'nearest'})}
   else if(e.key=='Enter'){if(shown[active>=0?active:0]){e.preventDefault();pick(shown[active>=0?active:0])}}
-  else if(e.key=='Escape')hideList();
+  else if(e.key=='Escape'||e.key=='Tab')settle();
 });
 for(const id of ['from','to'])$(id).addEventListener('change',()=>course&&refreshStations());
 
@@ -280,14 +282,14 @@ function enhance(sel){
   const close=()=>{box.hidden=true;btn.setAttribute('aria-expanded','false')};
   const mark=()=>[...box.children].forEach((o,i)=>{o.setAttribute('aria-selected',i==act);if(i==act)o.scrollIntoView({block:'nearest'})});
   const choose=i=>{sel.selectedIndex=i;sync();close();sel.dispatchEvent(new Event('change',{bubbles:true}))};
-  const open=()=>{box.innerHTML='';[...sel.options].forEach((o,i)=>{const d=document.createElement('div');d.className='opt';d.setAttribute('role','option');d.textContent=o.text;d.addEventListener('mousedown',e=>{e.preventDefault();choose(i)});box.append(d)});
+  const open=()=>{box.innerHTML='';[...sel.options].forEach((o,i)=>{const d=document.createElement('div');d.className='opt';d.setAttribute('role','option');d.textContent=o.text;d.addEventListener('mousedown',e=>e.preventDefault());d.addEventListener('click',()=>choose(i));box.append(d)});
     act=sel.selectedIndex;box.hidden=false;btn.setAttribute('aria-expanded','true');mark()};
   btn.addEventListener('click',()=>box.hidden?open():close());
-  btn.addEventListener('blur',close);
+  document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target))close()},true);
   btn.addEventListener('keydown',e=>{const n=sel.options.length;
     if(e.key=='ArrowDown'||e.key=='ArrowUp'){e.preventDefault();if(box.hidden)open();else{act=(act+(e.key=='ArrowDown'?1:-1)+n)%n;mark()}}
     else if((e.key=='Enter'||e.key==' ')&&!box.hidden){e.preventDefault();choose(act)}
-    else if(e.key=='Escape')close()});
+    else if(e.key=='Escape'||e.key=='Tab')close()});
   sync();
 }
 ['prov','h1','h2'].forEach(id=>enhance($(id)));
