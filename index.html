@@ -30,7 +30,15 @@ header h1{font:700 30px/1.1 var(--display);margin:0;color:var(--brand);letter-sp
 header p{margin:4px 0 0;color:var(--muted);max-width:65ch}
 h2{color:var(--brand);font:600 19px/1.2 var(--display);margin:0 0 10px;text-wrap:balance}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px}
-.grid{display:grid;grid-template-columns:1.3fr 2fr 1fr 1fr;gap:14px}
+.grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px}
+.provrow{margin-bottom:14px}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg button{border:1px solid var(--line);background:var(--bg);border-radius:5px;padding:9px 14px;cursor:pointer;font-weight:500}
+.seg button[aria-pressed=true]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.step{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:5px;background:var(--bg);overflow:hidden}
+.step button{border:0;background:transparent;width:44px;font-size:20px;line-height:1;cursor:pointer;color:var(--accent)}
+.step button:hover{background:var(--accent-soft)}
+.step output{flex:1;text-align:center;padding:9px 6px;font-variant-numeric:tabular-nums;border-inline:1px solid var(--line)}
 .grid2{display:grid;grid-template-columns:1fr 1fr 2fr;gap:14px;margin-top:14px;align-items:end}
 @media (max-width:760px){.grid,.grid2{grid-template-columns:1fr}}
 label{display:block;font:600 12px/1.2 var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:5px}
@@ -42,10 +50,6 @@ input:focus-visible,select:focus-visible,button:focus-visible,.opt:focus-visible
 .opt{padding:8px 10px;cursor:pointer;display:flex;justify-content:space-between;gap:10px}
 .opt small{color:var(--muted)}
 .opt[aria-selected=true],.opt:hover{background:var(--accent-soft)}
-.dd{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:5px;background:var(--bg);text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center}
-.dd::after{content:'';border:5px solid transparent;border-top-color:var(--muted);margin-top:5px;flex:none}
-.dd span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.ddwrap{position:relative}
 .btn{background:var(--brand);color:var(--brand-ink);border:0;border-radius:5px;padding:10px 18px;font-weight:600;cursor:pointer}
 .btn[disabled]{opacity:.5;cursor:default}
 .btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);padding:7px 12px}
@@ -86,8 +90,8 @@ svg text{fill:var(--muted);font:12px var(--body)}
 
 <p class="msg" id="previewNote" hidden>This page looks like it is open in a preview window. You can search courses and stations here, but getting wind data needs the file opened in Safari or Chrome: double-click it in your Downloads folder.</p>
 <section class="panel">
+  <div class="provrow"><label id="provLab">1. Province</label><div class="seg" id="provSeg" role="group" aria-labelledby="provLab"></div><select id="prov" hidden><option value=""></option></select></div>
   <div class="grid">
-    <div><label for="prov">1. Province</label><select id="prov"><option value="">Select a province</option></select></div>
     <div class="combo">
       <label for="course">2. Golf course</label>
       <input type="text" id="course" autocomplete="off" placeholder="Select a province first" disabled role="combobox" aria-expanded="false" aria-controls="courseList">
@@ -97,8 +101,8 @@ svg text{fill:var(--muted);font:12px var(--body)}
     <div><label for="to">To</label><input type="date" id="to"></div>
   </div>
   <div class="grid2">
-    <div><label for="h1">Hours from</label><select id="h1"></select></div>
-    <div><label for="h2">Hours to (inclusive)</label><select id="h2"></select></div>
+    <div><label id="h1Lab">Hours from</label><div class="step" id="h1Step" role="group" aria-labelledby="h1Lab"></div><select id="h1" hidden></select></div>
+    <div><label id="h2Lab">Hours to (inclusive)</label><div class="step" id="h2Step" role="group" aria-labelledby="h2Lab"></div><select id="h2" hidden></select></div>
     <div class="row"><button class="btn" id="go" disabled>Get wind data</button><span class="note" id="status"></span></div>
   </div>
 </section>
@@ -201,27 +205,30 @@ for(const id of ['h1','h2'])for(let h=0;h<24;h++)$(id).add(new Option(hourLabel(
 $('h1').value=6;$('h2').value=21;
 
 if(location.protocol!=='file:'&&!/^(localhost|127\.0\.0\.1)$/.test(location.hostname))$('previewNote').hidden=false;
+/* Controls act on click, and also on mouse release in case a screen recorder swallows or repeats the click. Nothing opens as a toggle, so a repeated event cannot close what it just opened. */
+function tap(el,fn){let last=0;const h=e=>{const now=Date.now();if(now-last<450)return;last=now;fn(e)};el.addEventListener('click',h);el.addEventListener('pointerup',e=>{if(e.pointerType==='mouse'&&e.button===0&&!el.disabled)h(e)})}
+let openedAt=0;
 const inp=$('course'),list=$('courseList');let active=-1,shown=[];
 function showList(){
-  const q=inp.value.trim().toLowerCase();
+  const q=(course&&inp.value===course.name)?'':inp.value.trim().toLowerCase();
   shown=COURSES.filter(c=>c.prov===$('prov').value&&(!q||c.name.toLowerCase().includes(q)||c.region.toLowerCase().includes(q)));
   list.innerHTML='';active=-1;
   if(!shown.length){list.innerHTML='<div class="opt"><small>No club matches that name</small></div>'}
   shown.forEach((c,i)=>{const d=document.createElement('div');d.className='opt';d.setAttribute('role','option');d.id='opt'+i;
     const a=document.createElement('span');a.textContent=c.name;const b=document.createElement('small');b.textContent=c.region.replace(/,? ?[A-Z]{2}$/,'');d.append(a,b);
-    d.addEventListener('mousedown',e=>e.preventDefault());d.addEventListener('click',()=>pick(c));list.append(d)});
-  list.hidden=false;inp.setAttribute('aria-expanded','true');
+    d.addEventListener('mousedown',e=>e.preventDefault());tap(d,()=>pick(c));list.append(d)});
+  if(list.hidden)openedAt=Date.now();list.hidden=false;inp.setAttribute('aria-expanded','true');
 }
 function hideList(){list.hidden=true;inp.setAttribute('aria-expanded','false')}
 function pick(c){course=c;inp.value=c.name;hideList();refreshStations()}
 const PROV={NS:'Nova Scotia',NB:'New Brunswick',PE:'Prince Edward Island',NL:'Newfoundland and Labrador'};
-for(const k of Object.keys(PROV))if(COURSES.some(c=>c.prov===k))$('prov').add(new Option(PROV[k],k));
-$('prov').addEventListener('change',()=>{const v=$('prov').value;course=null;station=null;inp.value='';inp.disabled=!v;inp.placeholder=v?'Start typing a club name or town':'Select a province first';$('stationPanel').hidden=$('results').hidden=$('detail').hidden=true;$('go').disabled=true;$('status').textContent='';if(v)inp.focus()});
-inp.addEventListener('focus',()=>{inp.select();showList()});
+for(const k of Object.keys(PROV))if(COURSES.some(c=>c.prov===k)){$('prov').add(new Option(PROV[k],k));const b=document.createElement('button');b.type='button';b.textContent=PROV[k];b.dataset.v=k;b.id='prov_'+k;b.setAttribute('aria-pressed','false');tap(b,()=>{if($('prov').value===k)return;$('prov').value=k;$('prov').dispatchEvent(new Event('change'))});$('provSeg').append(b)}
+$('prov').addEventListener('change',()=>{const v=$('prov').value;course=null;station=null;inp.value='';inp.disabled=!v;inp.placeholder=v?'Start typing a club name or town':'Select a province first';$('stationPanel').hidden=$('results').hidden=$('detail').hidden=true;$('go').disabled=true;$('status').textContent='';[...$('provSeg').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));if(v){showList();try{inp.focus({preventScroll:true})}catch(e){}}});
+inp.addEventListener('focus',()=>{if(list.hidden){inp.select();showList()}});
 inp.addEventListener('input',showList);
 const settle=()=>{if(list.hidden)return;hideList();if(course)inp.value=course.name};
-document.addEventListener('pointerdown',e=>{if(!e.target.closest('.combo'))settle()},true);
-inp.addEventListener('click',()=>{if(list.hidden&&!inp.disabled)showList()});
+document.addEventListener('click',e=>{const t=e.target;if(Date.now()-openedAt<450||!t.closest||t.closest('.combo'))return;if(t.closest('.wrap')||t===document.body||t===document.documentElement)settle()});
+tap(inp,()=>{if(list.hidden&&!inp.disabled)showList()});
 inp.addEventListener('keydown',e=>{
   if(e.key=='ArrowDown'||e.key=='ArrowUp'){e.preventDefault();if(list.hidden)showList();active=(active+(e.key=='ArrowDown'?1:-1)+shown.length)%shown.length;
     [...list.children].forEach((o,i)=>o.setAttribute('aria-selected',i==active));list.children[active]?.scrollIntoView({block:'nearest'})}
@@ -246,7 +253,7 @@ function refreshStations(){
   near.forEach(s=>{const tr=document.createElement('tr');tr.dataset.name=(s.name+' '+s.type+' '+s.cid).toLowerCase();if(s===station)tr.className='sel';
     const td=document.createElement('td');const lab=document.createElement('label');lab.style.cssText='text-transform:none;letter-spacing:0;font:inherit;color:inherit;margin:0;display:flex;gap:8px;align-items:baseline;cursor:pointer';
     const rb=document.createElement('input');rb.type='radio';rb.name='stn';rb.checked=s===station;rb.disabled=!s.partial;rb.id='stn'+s.id;
-    rb.addEventListener('change',()=>{station=s;[...t.rows].forEach(r=>r.classList.remove('sel'));tr.classList.add('sel');$('go').disabled=false});
+    const choose=()=>{if(rb.disabled)return;rb.checked=true;station=s;[...t.rows].forEach(r=>r.classList.remove('sel'));tr.classList.add('sel');$('go').disabled=false};rb.addEventListener('change',choose);tap(tr,choose);tr.style.cursor='pointer';
     const nm=document.createElement('span');nm.textContent=`${s.name}, ${s.prov} `;const sm=document.createElement('small');sm.className='note';sm.textContent=`(${s.type}, ID ${s.cid})`;nm.append(sm);
     lab.append(rb,nm);td.append(lab);tr.append(td);
     const span=`${s.first} to ${s.last>'9999'?'present':s.last}`;const cov=s.covers?'Covers your dates':s.partial?`Partial: ${span}`:`None: ${span}`;
@@ -256,7 +263,7 @@ function refreshStations(){
 }
 $('stnFilter').addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase();[...$('stationTable').rows].slice(1).forEach(r=>r.hidden=!!q&&!r.dataset.name.includes(q))});
 
-$('go').addEventListener('click',async()=>{
+tap($('go'),async()=>{if($('go').disabled)return;
   const from=$('from').value,to=$('to').value,h1=+$('h1').value,h2=+$('h2').value;
   if(!from||!to||from>to){$('status').textContent='Check the dates: "From" must be on or before "To".';return}
   if(h1>h2){$('status').textContent='"Hours from" must be earlier than "Hours to".';return}
@@ -270,29 +277,15 @@ $('go').addEventListener('click',async()=>{
   $('go').disabled=false;
 });
 
-/* In-page dropdowns: native select menus open in a separate system window, which tab recordings do not capture. */
-function enhance(sel){
-  const wrap=document.createElement('div');wrap.className='ddwrap';sel.parentNode.insertBefore(wrap,sel);wrap.append(sel);sel.hidden=true;
-  const btn=document.createElement('button');btn.type='button';btn.className='dd';btn.id=sel.id+'Btn';btn.setAttribute('aria-haspopup','listbox');btn.setAttribute('aria-expanded','false');
-  const txt=document.createElement('span');btn.append(txt);
-  const box=document.createElement('div');box.className='list';box.setAttribute('role','listbox');box.hidden=true;wrap.append(btn,box);
-  const lab=document.querySelector(`label[for="${sel.id}"]`);if(lab)lab.htmlFor=btn.id;
-  let act=-1;
-  const sync=()=>{txt.textContent=sel.options[sel.selectedIndex]?.text||''};
-  const close=()=>{box.hidden=true;btn.setAttribute('aria-expanded','false')};
-  const mark=()=>[...box.children].forEach((o,i)=>{o.setAttribute('aria-selected',i==act);if(i==act)o.scrollIntoView({block:'nearest'})});
-  const choose=i=>{sel.selectedIndex=i;sync();close();sel.dispatchEvent(new Event('change',{bubbles:true}))};
-  const open=()=>{box.innerHTML='';[...sel.options].forEach((o,i)=>{const d=document.createElement('div');d.className='opt';d.setAttribute('role','option');d.textContent=o.text;d.addEventListener('mousedown',e=>e.preventDefault());d.addEventListener('click',()=>choose(i));box.append(d)});
-    act=sel.selectedIndex;box.hidden=false;btn.setAttribute('aria-expanded','true');mark()};
-  btn.addEventListener('click',()=>box.hidden?open():close());
-  document.addEventListener('pointerdown',e=>{if(!wrap.contains(e.target))close()},true);
-  btn.addEventListener('keydown',e=>{const n=sel.options.length;
-    if(e.key=='ArrowDown'||e.key=='ArrowUp'){e.preventDefault();if(box.hidden)open();else{act=(act+(e.key=='ArrowDown'?1:-1)+n)%n;mark()}}
-    else if((e.key=='Enter'||e.key==' ')&&!box.hidden){e.preventDefault();choose(act)}
-    else if(e.key=='Escape'||e.key=='Tab')close()});
-  sync();
+/* Hour steppers: plain buttons, no pop-up menus. */
+function stepper(id){
+  const sel=$(id),box=$(id+'Step'),out=document.createElement('output');
+  const mk=(txt,d,name)=>{const b=document.createElement('button');b.type='button';b.textContent=txt;b.id=id+(d<0?'Down':'Up');b.setAttribute('aria-label',name);
+    tap(b,()=>{const n=sel.options.length;sel.selectedIndex=Math.max(0,Math.min(n-1,sel.selectedIndex+d));sync();sel.dispatchEvent(new Event('change'))});return b};
+  const sync=()=>{out.textContent=sel.options[sel.selectedIndex].text};
+  box.append(mk('\u2212',-1,'Earlier hour'),out,mk('+',1,'Later hour'));sync();
 }
-['prov','h1','h2'].forEach(id=>enhance($(id)));
+['h1','h2'].forEach(stepper);
 function f1(x){return x==null?'':x.toFixed(1)}
 function render(from,to,h1,h2){
   const s=summarise(rows);
@@ -303,7 +296,7 @@ function render(from,to,h1,h2){
   const tiles=[[f1(s.avg)+' km/h','Average wind speed'],[s.max+' km/h','Highest hourly speed'],[s.dir||'n/a','Most common direction'],[f1(s.calm)+'%','Calm hours'],[s.n.toLocaleString(),`Readings used (${Math.min(100,s.n/expected*100).toFixed(0)}% of hours)`]];
   $('tiles').innerHTML='';tiles.forEach(([b,l])=>{const d=document.createElement('div');d.className='tile';const x=document.createElement('b');x.textContent=b;const y=document.createElement('span');y.textContent=l;d.append(x,y);$('tiles').append(d)});
   const tabs=$('tabs');tabs.innerHTML='';
-  [['day','By day'],['week','By week (Mon to Sun)'],['month','By month'],['hour','By hour of day']].forEach(([m,l])=>{const b=document.createElement('button');b.className='tab';b.textContent=l;b.setAttribute('role','tab');b.setAttribute('aria-selected',m==mode);b.addEventListener('click',()=>{mode=m;[...tabs.children].forEach(c=>c.setAttribute('aria-selected',c===b));renderDetail()});tabs.append(b)});
+  [['day','By day'],['week','By week (Mon to Sun)'],['month','By month'],['hour','By hour of day']].forEach(([m,l])=>{const b=document.createElement('button');b.className='tab';b.textContent=l;b.setAttribute('role','tab');b.setAttribute('aria-selected',m==mode);tap(b,()=>{mode=m;[...tabs.children].forEach(c=>c.setAttribute('aria-selected',c===b));renderDetail()});tabs.append(b)});
   renderDetail();
 }
 function renderDetail(){
@@ -338,8 +331,8 @@ function drawChart(){
 }
 function download(name,lines){const b=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
 const q=s=>`"${String(s??'').replace(/"/g,'""')}"`, slug=()=>course.name.replace(/[^A-Za-z0-9]+/g,'_');
-$('dlSum').addEventListener('click',()=>download(`${slug()}_wind_by_${mode}.csv`,[['Course','Station','Climate ID','Distance km','Period','Avg speed km/h','Highest hour km/h','Most common direction','Calm hours %','Readings','Days with data'].map(q).join(','),...groups.map(g=>[course.name,station.name,station.cid,station.km.toFixed(0),g.label,f1(g.avg),g.max??'',g.dir,g.n?f1(g.calm):'',g.n,g.days].map(q).join(','))]));
-$('dlHr').addEventListener('click',()=>download(`${slug()}_wind_hourly.csv`,['Date,Hour (clock),Wind speed km/h,Wind direction (degrees true)',...rows.map(r=>[r.date,r.hour,r.spd??'',r.dir==null?'':r.dir*10].join(','))]));
+tap($('dlSum'),()=>download(`${slug()}_wind_by_${mode}.csv`,[['Course','Station','Climate ID','Distance km','Period','Avg speed km/h','Highest hour km/h','Most common direction','Calm hours %','Readings','Days with data'].map(q).join(','),...groups.map(g=>[course.name,station.name,station.cid,station.km.toFixed(0),g.label,f1(g.avg),g.max??'',g.dir,g.n?f1(g.calm):'',g.n,g.days].map(q).join(','))]));
+tap($('dlHr'),()=>download(`${slug()}_wind_hourly.csv`,['Date,Hour (clock),Wind speed km/h,Wind direction (degrees true)',...rows.map(r=>[r.date,r.hour,r.spd??'',r.dir==null?'':r.dir*10].join(','))]));
 </script>
 </body>
 </html>
