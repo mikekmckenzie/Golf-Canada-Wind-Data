@@ -30,11 +30,11 @@ header h1{font:700 30px/1.1 var(--display);margin:0;color:var(--brand);letter-sp
 header p{margin:4px 0 0;color:var(--muted);max-width:65ch}
 h2{color:var(--brand);font:600 19px/1.2 var(--display);margin:0 0 10px;text-wrap:balance}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px}
-.grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px}
-.provrow{margin-bottom:14px}
-.seg{display:flex;flex-wrap:wrap;gap:8px}
-.seg button{border:1px solid var(--line);background:var(--bg);border-radius:5px;padding:9px 14px;cursor:pointer;font-weight:500}
-.seg button[aria-pressed=true]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.grid{display:grid;grid-template-columns:1.3fr 2fr 1fr 1fr;gap:14px}
+.ddwrap{position:relative}
+.dd{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:5px;background:var(--bg);text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.dd::after{content:'';border:5px solid transparent;border-top-color:var(--muted);margin-top:5px;flex:none}
+.dd span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .step{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:5px;background:var(--bg);overflow:hidden}
 .step button{border:0;background:transparent;width:44px;font-size:20px;line-height:1;cursor:pointer;color:var(--accent)}
 .step button:hover{background:var(--accent-soft)}
@@ -90,8 +90,8 @@ svg text{fill:var(--muted);font:12px var(--body)}
 
 <p class="msg" id="previewNote" hidden>This page looks like it is open in a preview window. You can search courses and stations here, but getting wind data needs the file opened in Safari or Chrome: double-click it in your Downloads folder.</p>
 <section class="panel">
-  <div class="provrow"><label id="provLab">1. Province</label><div class="seg" id="provSeg" role="group" aria-labelledby="provLab"></div><select id="prov" hidden><option value=""></option></select></div>
   <div class="grid">
+    <div><label for="provBtn">1. Province</label><div class="ddwrap" id="provWrap"><button type="button" class="dd" id="provBtn" aria-haspopup="listbox" aria-expanded="false"><span id="provTxt">Select a province</span></button><div class="list" id="provList" role="listbox" hidden></div><select id="prov" hidden><option value=""></option></select></div></div>
     <div class="combo">
       <label for="course">2. Golf course</label>
       <input type="text" id="course" autocomplete="off" placeholder="Select a province first" disabled role="combobox" aria-expanded="false" aria-controls="courseList">
@@ -222,12 +222,25 @@ function showList(){
 function hideList(){list.hidden=true;inp.setAttribute('aria-expanded','false')}
 function pick(c){course=c;inp.value=c.name;hideList();refreshStations()}
 const PROV={NS:'Nova Scotia',NB:'New Brunswick',PE:'Prince Edward Island',NL:'Newfoundland and Labrador'};
-for(const k of Object.keys(PROV))if(COURSES.some(c=>c.prov===k)){$('prov').add(new Option(PROV[k],k));const b=document.createElement('button');b.type='button';b.textContent=PROV[k];b.dataset.v=k;b.id='prov_'+k;b.setAttribute('aria-pressed','false');tap(b,()=>{if($('prov').value===k)return;$('prov').value=k;$('prov').dispatchEvent(new Event('change'))});$('provSeg').append(b)}
-$('prov').addEventListener('change',()=>{const v=$('prov').value;course=null;station=null;inp.value='';inp.disabled=!v;inp.placeholder=v?'Start typing a club name or town':'Select a province first';$('stationPanel').hidden=$('results').hidden=$('detail').hidden=true;$('go').disabled=true;$('status').textContent='';[...$('provSeg').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));if(v){showList();try{inp.focus({preventScroll:true})}catch(e){}}});
+let provOpenedAt=0,provAct=-1;
+const provBtn=$('provBtn'),provList=$('provList');
+const provClose=()=>{provList.hidden=true;provBtn.setAttribute('aria-expanded','false')};
+const provOpen=()=>{if(!provList.hidden)return;provOpenedAt=Date.now();provList.hidden=false;provBtn.setAttribute('aria-expanded','true')};
+const provMark=()=>[...provList.children].forEach((o,i)=>o.setAttribute('aria-selected',i==provAct));
+const provChoose=k=>{provClose();if($('prov').value===k)return;$('prov').value=k;$('prov').dispatchEvent(new Event('change'))};
+for(const k of Object.keys(PROV))if(COURSES.some(c=>c.prov===k)){$('prov').add(new Option(PROV[k],k));const d=document.createElement('div');d.className='opt';d.setAttribute('role','option');d.textContent=PROV[k];d.dataset.v=k;d.id='prov_'+k;d.addEventListener('mousedown',e=>e.preventDefault());tap(d,()=>provChoose(k));provList.append(d)}
+tap(provBtn,()=>{if(provList.hidden)provOpen();else if(Date.now()-provOpenedAt>450)provClose()});
+provBtn.addEventListener('keydown',e=>{const n=provList.children.length;
+  if(e.key=='ArrowDown'||e.key=='ArrowUp'){e.preventDefault();provOpen();provAct=(provAct+(e.key=='ArrowDown'?1:-1)+n)%n;provMark()}
+  else if((e.key=='Enter'||e.key==' ')&&!provList.hidden&&provAct>=0){e.preventDefault();provChoose(provList.children[provAct].dataset.v)}
+  else if(e.key=='Escape'||e.key=='Tab')provClose()});
+$('prov').addEventListener('change',()=>{const v=$('prov').value;course=null;station=null;inp.value='';inp.disabled=!v;inp.placeholder=v?'Start typing a club name or town':'Select a province first';$('stationPanel').hidden=$('results').hidden=$('detail').hidden=true;$('go').disabled=true;$('status').textContent='';$('provTxt').textContent=v?PROV[v]:'Select a province';provAct=[...provList.children].findIndex(o=>o.dataset.v===v);provMark();if(v){showList();try{inp.focus({preventScroll:true})}catch(e){}}});
 inp.addEventListener('focus',()=>{if(list.hidden){inp.select();showList()}});
 inp.addEventListener('input',showList);
 const settle=()=>{if(list.hidden)return;hideList();if(course)inp.value=course.name};
-document.addEventListener('click',e=>{const t=e.target;if(Date.now()-openedAt<450||!t.closest||t.closest('.combo'))return;if(t.closest('.wrap')||t===document.body||t===document.documentElement)settle()});
+document.addEventListener('click',e=>{const t=e.target;if(!t.closest)return;const ours=t.closest('.wrap')||t===document.body||t===document.documentElement;if(!ours)return;
+  if(Date.now()-openedAt>=450&&!t.closest('.combo'))settle();
+  if(Date.now()-provOpenedAt>=450&&!t.closest('#provWrap'))provClose()});
 tap(inp,()=>{if(list.hidden&&!inp.disabled)showList()});
 inp.addEventListener('keydown',e=>{
   if(e.key=='ArrowDown'||e.key=='ArrowUp'){e.preventDefault();if(list.hidden)showList();active=(active+(e.key=='ArrowDown'?1:-1)+shown.length)%shown.length;
