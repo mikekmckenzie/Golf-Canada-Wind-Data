@@ -27,10 +27,15 @@ header{border-bottom:3px solid var(--accent);padding-bottom:14px;display:flex;ju
 .logo{flex:none;width:112px;height:auto;background:#fff;border-radius:6px;padding:6px}
 @media (max-width:520px){.logo{width:72px}}
 header h1{font:700 30px/1.1 var(--display);margin:0;color:var(--brand);letter-spacing:.2px}
+header h1 .h1a{font-size:45px;line-height:1.05}
 header p{margin:4px 0 0;color:var(--muted);max-width:65ch}
 h2{color:var(--brand);font:600 19px/1.2 var(--display);margin:0 0 10px;text-wrap:balance}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px}
-.grid{display:grid;grid-template-columns:1.3fr 2fr 1fr 1fr;gap:14px}
+.grid{display:grid;grid-template-columns:1.1fr 1.6fr 2.3fr;gap:14px}
+.yrs{display:flex;flex-wrap:wrap;gap:6px}
+.yr{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:5px;padding:9px 0;width:62px;font:inherit;cursor:pointer;font-variant-numeric:tabular-nums}
+.yr[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.yr:disabled{opacity:.45;cursor:not-allowed}
 .ddwrap{position:relative}
 .dd{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:5px;background:var(--bg);text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:8px;align-items:center}
 .dd::after{content:'';border:5px solid transparent;border-top-color:var(--muted);margin-top:5px;flex:none}
@@ -38,6 +43,7 @@ h2{color:var(--brand);font:600 19px/1.2 var(--display);margin:0 0 10px;text-wrap
 .step{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:5px;background:var(--bg);overflow:hidden}
 .step button{border:0;background:transparent;width:44px;font-size:20px;line-height:1;cursor:pointer;color:var(--accent)}
 .step button:hover{background:var(--accent-soft)}
+input:disabled{opacity:.75}
 .step output{flex:1;text-align:center;padding:9px 6px;font-variant-numeric:tabular-nums;border-inline:1px solid var(--line)}
 .grid2{display:grid;grid-template-columns:1fr 1fr 2fr;gap:14px;margin-top:14px;align-items:end}
 @media (max-width:760px){.grid,.grid2{grid-template-columns:1fr}}
@@ -84,8 +90,8 @@ svg text{fill:var(--muted);font:12px var(--body)}
 <body>
 <div class="wrap">
 <header>
-  <div class="htext"><h1>Golf Nova Scotia<br>Wind Data Collector</h1>
-  <p>Pick a province, then a golf course and a date range. The tool finds the closest Environment Canada wind station within 100 km, pulls its hourly readings, and averages wind speed by day, week (Monday to Sunday), month and hour of day.</p></div>
+  <div class="htext"><h1><span class="h1a">Golf Nova Scotia</span><br>Wind Data Collector</h1>
+  <p>Pick a province, then a golf course and one or more years. Each year covers the province&rsquo;s handicap active season, and each day runs from a set time after sunrise to a set time before sunset at the course. The tool finds the closest Environment Canada wind station within 100 km, pulls its hourly readings, and averages wind speed by day, week (Monday to Sunday), month, year and hour of day.</p></div>
   <img class="logo" src="data:image/png;base64,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" alt="Golf Nova Scotia logo" width="320" height="370">
 </header>
 
@@ -98,14 +104,14 @@ svg text{fill:var(--muted);font:12px var(--body)}
       <input type="text" id="course" autocomplete="off" placeholder="Select a province first" disabled role="combobox" aria-expanded="false" aria-controls="courseList">
       <div class="list" id="courseList" role="listbox" hidden></div>
     </div>
-    <div><label for="from">From</label><input type="date" id="from"></div>
-    <div><label for="to">To</label><input type="date" id="to"></div>
+    <div><label id="yrLab">3. Active season years</label><div class="yrs" id="years" role="group" aria-labelledby="yrLab"></div></div>
   </div>
   <div class="grid2">
-    <div><label id="h1Lab">Hours from</label><div class="step" id="h1Step" role="group" aria-labelledby="h1Lab"></div><select id="h1" hidden></select></div>
-    <div><label id="h2Lab">Hours to (inclusive)</label><div class="step" id="h2Step" role="group" aria-labelledby="h2Lab"></div><select id="h2" hidden></select></div>
+    <div><label id="srLab">Start: after sunrise</label><div class="step" id="srStep" role="group" aria-labelledby="srLab"></div><select id="sr" hidden></select></div>
+    <div><label id="ssLab">End: before sunset</label><div class="step" id="ssStep" role="group" aria-labelledby="ssLab"></div><select id="ss" hidden></select></div>
     <div class="row"><button class="btn" id="go" disabled>Get wind data</button><span class="note" id="status"></span></div>
   </div>
+  <p class="note" id="perNote" style="margin:10px 0 0" hidden></p>
 </section>
 
 <section class="panel" id="stationPanel" hidden>
@@ -113,7 +119,7 @@ svg text{fill:var(--muted);font:12px var(--body)}
   <div id="stationMsg"></div>
   <div class="row" style="margin-bottom:10px"><input type="text" id="stnFilter" placeholder="Filter stations by name, e.g. Stanfield" style="max-width:340px" aria-label="Filter stations by name"><span class="note" id="stnCount"></span></div>
   <div class="scroll stnbox"><table class="stations" id="stationTable"></table></div>
-  <p class="note" style="margin:10px 0 0">Every wind station within 100 km is listed, closest first; scroll or filter to find one. The closest station with hourly data covering your dates is selected. Choose another if it suits the course better, for example an airport or one on the same coast. Some airports have two records for the same site.</p>
+  <p class="note" style="margin:10px 0 0">Every wind station within 100 km is listed, closest first; scroll or filter to find one. The closest station with hourly data covering your years is selected. Choose another if it suits the course better, for example an airport or one on the same coast. Some airports have two records for the same site.</p>
 </section>
 
 <section class="panel" id="results" hidden>
@@ -130,7 +136,7 @@ svg text{fill:var(--muted);font:12px var(--body)}
   <div class="scroll" style="margin-top:12px"><table id="sumTable"></table></div>
 </section>
 
-<p class="note">Source: Environment and Climate Change Canada hourly climate data (api.weather.gc.ca). Speeds are km/h. Direction is where the wind blows from. Times are local clock time at the course. Recent readings are preliminary. A station can be many kilometres from the course and sit in different terrain, so treat the numbers as a guide to the area and not a measurement at the course. Course locations come from OpenStreetMap (Ontario and Quebec from GolfPass); those marked "town location" are placed at the named town, and their elevation is the town's. Course elevation is from Natural Resources Canada&rsquo;s Canadian Digital Elevation Model. Where the course outline is mapped in OpenStreetMap, it shows the lowest and highest of about 50 points spread across the course and their average; otherwise it is a single point at the course location and is approximate.</p>
+<p class="note">Source: Environment and Climate Change Canada hourly climate data (api.weather.gc.ca). Speeds are km/h. Direction is where the wind blows from. Times are local clock time at the course. Recent readings are preliminary. A station can be many kilometres from the course and sit in different terrain, so treat the numbers as a guide to the area and not a measurement at the course. Course locations come from OpenStreetMap (Ontario and Quebec from GolfPass); those marked "town location" are placed at the named town, and their elevation is the town's. Active season dates are Golf Canada&rsquo;s handicap posting seasons by province. Sunrise and sunset are calculated for the course location each day (NOAA solar equations); an hourly reading is used when its time falls inside that day&rsquo;s window. Course elevation is from Natural Resources Canada&rsquo;s Canadian Digital Elevation Model. Where the course outline is mapped in OpenStreetMap, it shows the lowest and highest of about 50 points spread across the course and their average; otherwise it is a single point at the course location and is approximate.</p>
 <footer class="foot"><p>&copy; 2026 Golf Nova Scotia. All rights reserved.</p><p>Wind data: Environment and Climate Change Canada (Open Government Licence &ndash; Canada). Course locations &copy; OpenStreetMap contributors. Elevation: Natural Resources Canada (Open Government Licence &ndash; Canada).</p></footer>
 </div>
 <div id="tip" hidden></div>
@@ -160,11 +166,29 @@ function addDays(d,n){const t=new Date(d+'T00:00:00Z');t.setUTCDate(t.getUTCDate
 function mondayOf(d){const t=new Date(d+'T00:00:00Z');return addDays(d,-((t.getUTCDay()+6)%7))}
 function nice(d){const t=new Date(d+'T00:00:00Z');return `${DOW[t.getUTCDay()]} ${MON[t.getUTCMonth()]} ${t.getUTCDate()}`}
 function hourLabel(h){return h==0?'12 am':h<12?h+' am':h==12?'12 pm':(h-12)+' pm'}
-function toRows(features,tz,from,to,h1,h2){ // keep readings inside the date range and hour window, in course clock time
+/* Sunrise and sunset (NOAA solar equations). Returns UTC milliseconds for the local calendar day d at lat/lon. */
+function sunTimes(d,lat,lon){
+  const t0=Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10)),doy=Math.round((t0-Date.UTC(+d.slice(0,4),0,1))/864e5)+1,r=Math.PI/180;
+  const g=2*Math.PI/365*(doy-1+(12-lon/15-12)/24);
+  const eq=229.18*(0.000075+0.001868*Math.cos(g)-0.032077*Math.sin(g)-0.014615*Math.cos(2*g)-0.040849*Math.sin(2*g));
+  const dec=0.006918-0.399912*Math.cos(g)+0.070257*Math.sin(g)-0.006758*Math.cos(2*g)+0.000907*Math.sin(2*g)-0.002697*Math.cos(3*g)+0.00148*Math.sin(3*g);
+  const c=Math.cos(90.833*r)/(Math.cos(lat*r)*Math.cos(dec))-Math.tan(lat*r)*Math.tan(dec);
+  if(c<=-1)return {rise:null,set:null,allDay:true};
+  if(c>=1)return {rise:null,set:null};
+  const ha=Math.acos(c)/r;
+  return {rise:t0+(720-4*(lon+ha)-eq)*6e4,set:t0+(720-4*(lon-ha)-eq)*6e4};
+}
+const hmCache={};
+function hm(ms,tz){if(ms==null)return '';const f=hmCache[tz]||(hmCache[tz]=new Intl.DateTimeFormat('en-CA',{timeZone:tz,hour:'numeric',minute:'2-digit',hour12:true}));return f.format(new Date(ms)).replace(/\s?a\.?m\.?/i,' am').replace(/\s?p\.?m\.?/i,' pm')}
+function dayWindow(d,c,a,b){const s=sunTimes(d,c.lat,c.lon);if(s.allDay)return {lo:-Infinity,hi:Infinity,rise:null,set:null};if(s.rise==null)return null;return {lo:s.rise+a*6e4,hi:s.set-b*6e4,rise:s.rise,set:s.set}}
+function toRows(features,c,from,to,a,b){ // keep readings inside the season and each day's sunrise/sunset window
+  const tz=c.tz,W={};
   const rows=[];
   for(const f of features){const p=f.properties;if(!p.UTC_DATE)continue;const lp=localParts(p.UTC_DATE,tz);
-    if(lp.date<from||lp.date>to||lp.hour<h1||lp.hour>h2)continue;
-    rows.push({date:lp.date,hour:lp.hour,spd:p.WIND_SPEED,dir:p.WIND_DIRECTION})}
+    if(lp.date<from||lp.date>to)continue;
+    const w=W[lp.date]||(W[lp.date]=dayWindow(lp.date,c,a,b));const t=Date.parse(p.UTC_DATE+'Z');
+    if(!w||t<w.lo||t>w.hi)continue;
+    rows.push({date:lp.date,hour:lp.hour,spd:p.WIND_SPEED,dir:p.WIND_DIRECTION,rise:hm(w.rise,tz),set:hm(w.set,tz)})}
   rows.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.hour-b.hour);return rows;
 }
 function summarise(rows){
@@ -175,7 +199,7 @@ function summarise(rows){
   return {n:v.length,avg:sum/v.length,max,calm:calm/v.length*100,dir:Math.max(...bins)?COMPASS[top]:'',days:new Set(v.map(r=>r.date)).size};
 }
 function groupBy(rows,mode){
-  const key={day:r=>r.date,week:r=>mondayOf(r.date),month:r=>r.date.slice(0,7),hour:r=>String(r.hour).padStart(2,'0')}[mode];
+  const key={day:r=>r.date,week:r=>mondayOf(r.date),month:r=>r.date.slice(0,7),year:r=>r.date.slice(0,4),hour:r=>String(r.hour).padStart(2,'0')}[mode];
   const m=new Map();for(const r of rows){const k=key(r);(m.get(k)||m.set(k,[]).get(k)).push(r)}
   return [...m.entries()].sort((a,b)=>a[0]<b[0]?-1:1).map(([k,rs])=>{
     let label=k;
@@ -183,6 +207,7 @@ function groupBy(rows,mode){
     if(mode=='week')label=`${nice(k)} to ${nice(addDays(k,6))}, ${k.slice(0,4)}`;
     if(mode=='month')label=MON[+k.slice(5,7)-1]+' '+k.slice(0,4);
     if(mode=='hour')label=hourLabel(+k);
+    if(mode=='year')label=k;
     return {key:k,label,...summarise(rs)}});
 }
 async function fetchHourly(climateId,from,to,onProgress){
@@ -201,10 +226,9 @@ async function fetchHourly(climateId,from,to,onProgress){
 let course=null, station=null, rows=[], mode='week', groups=[];
 const today=new Date(), yest=new Date(today-864e5);
 const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-$('to').value=iso(yest);$('to').max=iso(yest);
-$('from').value=(()=>{const s=`${yest.getFullYear()}-04-01`;return s<iso(yest)?s:`${yest.getFullYear()-1}-04-01`})();
-for(const id of ['h1','h2'])for(let h=0;h<24;h++)$(id).add(new Option(hourLabel(h),h));
-$('h1').value=6;$('h2').value=21;
+const offLabel=(m,word,sign)=>{const h=m/60;return `${word} ${m?sign+' '+(Number.isInteger(h)?h:h.toFixed(1))+' h':''}`.trim()};
+for(let m=0;m<=240;m+=30){$('sr').add(new Option(offLabel(m,'Sunrise','+'),m));$('ss').add(new Option(offLabel(m,'Sunset','\u2212'),m))}
+$('sr').value=120;$('ss').value=60;
 
 if(!['file:','http:','https:'].includes(location.protocol)||(location.protocol!=='file:'&&window.origin==='null'))$('previewNote').hidden=false;
 /* Controls act on click, and also on mouse release in case a screen recorder swallows or repeats the click. Nothing opens as a toggle, so a repeated event cannot close what it just opened. */
@@ -250,7 +274,6 @@ inp.addEventListener('keydown',e=>{
   else if(e.key=='Enter'){if(shown[active>=0?active:0]){e.preventDefault();pick(shown[active>=0?active:0])}}
   else if(e.key=='Escape'||e.key=='Tab')settle();
 });
-for(const id of ['from','to'])$(id).addEventListener('change',()=>course&&refreshStations());
 
 const ELEV={};
 function showTitle(){
@@ -264,17 +287,17 @@ function showTitle(){
     fetch('https://geogratis.gc.ca/services/elevation/cdem/altitude?lat='+c.lat+'&lon='+c.lon).then(r=>r.ok?r.json():null).then(j=>{const v=j&&j.altitude;if(typeof v==='number'&&isFinite(v)&&v>-500){ELEV[k]=v;if(course===c)showTitle()}else delete ELEV[k]}).catch(()=>{delete ELEV[k]});}
 }
 function refreshStations(){
-  const from=$('from').value,to=$('to').value;
+  const R=ranges();
   $('results').hidden=$('detail').hidden=true;$('status').textContent='';
-  const near=nearestStations(course,from,to);
+  const near=nearestStations(course,R.length?R[0].from:iso(yest),R.length?R[R.length-1].to:iso(yest));
   $('stationPanel').hidden=false;
   showTitle();
   const msg=$('stationMsg');msg.innerHTML='';
   const usable=near.filter(s=>s.partial);
   station=near.find(s=>s.covers)||usable[0]||null;
   if(!near.length){msg.innerHTML=`<p class="msg bad">No wind station within ${MAX_KM} km of this course.</p>`}
-  else if(!station){msg.innerHTML='<p class="msg bad">No station within 100 km has hourly data for these dates. Try a later date range.</p>'}
-  else if(!station.covers){msg.innerHTML='<p class="msg">No nearby station covers the whole date range. The selected station covers part of it.</p>'}
+  else if(!station){msg.innerHTML='<p class="msg bad">No station within 100 km has hourly data for the years selected. Try more recent years.</p>'}
+  else if(!station.covers){msg.innerHTML='<p class="msg">No nearby station covers all the years selected. The selected station covers part of them.</p>'}
   const t=$('stationTable');t.innerHTML='<tr><th>Station</th><th>Distance</th><th>Direction from course</th><th>Elevation</th><th>Hourly data</th></tr>';
   near.forEach(s=>{const tr=document.createElement('tr');tr.dataset.name=(s.name+' '+s.type+' '+s.cid).toLowerCase();if(s===station)tr.className='sel';
     const td=document.createElement('td');const lab=document.createElement('label');lab.style.cssText='text-transform:none;letter-spacing:0;font:inherit;color:inherit;margin:0;display:flex;gap:8px;align-items:baseline;cursor:pointer';
@@ -282,7 +305,7 @@ function refreshStations(){
     const choose=()=>{if(rb.disabled)return;rb.checked=true;station=s;[...t.rows].forEach(r=>r.classList.remove('sel'));tr.classList.add('sel');$('go').disabled=false};rb.addEventListener('change',choose);tap(tr,choose);tr.style.cursor='pointer';
     const nm=document.createElement('span');nm.textContent=`${s.name}, ${s.prov} `;const sm=document.createElement('small');sm.className='note';sm.textContent=`(${s.type}, ID ${s.cid})`;nm.append(sm);
     lab.append(rb,nm);td.append(lab);tr.append(td);
-    const span=`${s.first} to ${s.last>'9999'?'present':s.last}`;const cov=s.covers?'Covers your dates':s.partial?`Partial: ${span}`:`None: ${span}`;
+    const span=`${s.first} to ${s.last>'9999'?'present':s.last}`;const cov=s.covers?'Covers your years':s.partial?`Partial: ${span}`:`None: ${span}`;
     [`${s.km.toFixed(0)} km`,s.dir,`${Math.round(s.elev)} m`,cov].forEach(x=>{const c=document.createElement('td');c.textContent=x;tr.append(c)});t.append(tr)});
   $('go').disabled=!station;
   $('stnFilter').value='';$('stnCount').textContent=`${near.length} station${near.length==1?'':'s'} within ${MAX_KM} km`;
@@ -290,45 +313,72 @@ function refreshStations(){
 $('stnFilter').addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase();[...$('stationTable').rows].slice(1).forEach(r=>r.hidden=!!q&&!r.dataset.name.includes(q))});
 
 tap($('go'),async()=>{if($('go').disabled)return;
-  const from=$('from').value,to=$('to').value,h1=+$('h1').value,h2=+$('h2').value;
-  if(!from||!to||from>to){$('status').textContent='Check the dates: "From" must be on or before "To".';return}
-  if(h1>h2){$('status').textContent='"Hours from" must be earlier than "Hours to".';return}
+  const R=ranges(),a=+$('sr').value,b=+$('ss').value;
+  if(!R.length){$('status').textContent='Select at least one year.';return}
   $('go').disabled=true;$('status').textContent='Fetching readings from Environment Canada…';
   try{
-    const feats=await fetchHourly(station.cid,from,to,(n,m)=>{$('status').textContent=`Fetching readings… ${n.toLocaleString()} of ${(m||n).toLocaleString()}`});
-    rows=toRows(feats,course.tz,from,to,h1,h2);
-    if(!rows.filter(r=>r.spd!=null).length){$('status').textContent='That station has no wind readings for these dates and hours. Try another station from the list.';$('results').hidden=$('detail').hidden=true}
-    else{$('status').textContent='';render(from,to,h1,h2)}
+    rows=[];
+    for(const r of R){const feats=await fetchHourly(station.cid,r.from,r.to,(n,m)=>{$('status').textContent=`Fetching ${r.y} readings… ${n.toLocaleString()} of ${(m||n).toLocaleString()}`});
+      rows.push(...toRows(feats,course,r.from,r.to,a,b))}
+    if(!rows.filter(r=>r.spd!=null).length){$('status').textContent='That station has no wind readings for these years and daylight hours. Try another station from the list.';$('results').hidden=$('detail').hidden=true}
+    else{$('status').textContent='';render(R,a,b)}
   }catch(e){const blocked=e instanceof TypeError;$('status').textContent=blocked?'The request to Environment Canada was blocked before it left this page. This usually means the page is open in a preview window (such as inside the Claude app) that does not allow internet access. Open the page in Safari or Chrome instead. If it is already open there, check your internet connection.':'Could not get the data. '+(e.message||e)}
   $('go').disabled=false;
 });
 
 /* Hour steppers: plain buttons, no pop-up menus. */
-function stepper(id){
+function stepper(id,prev='Earlier hour',next='Later hour'){
   const sel=$(id),box=$(id+'Step'),out=document.createElement('output');
   const mk=(txt,d,name)=>{const b=document.createElement('button');b.type='button';b.textContent=txt;b.id=id+(d<0?'Down':'Up');b.setAttribute('aria-label',name);
     tap(b,()=>{const n=sel.options.length;sel.selectedIndex=Math.max(0,Math.min(n-1,sel.selectedIndex+d));sync();sel.dispatchEvent(new Event('change'))});return b};
   const sync=()=>{out.textContent=sel.options[sel.selectedIndex].text};
-  box.append(mk('\u2212',-1,'Earlier hour'),out,mk('+',1,'Later hour'));sync();
+  box.append(mk('\u2212',-1,prev),out,mk('+',1,next));sync();sel._sync=sync;
 }
-['h1','h2'].forEach(stepper);
+stepper('sr','Earlier start','Later start');stepper('ss','Later finish','Earlier finish');
+/* Active season (Golf Canada handicap posting season by province) */
+const SEASON={BC:['03-01','11-15'],AB:['03-01','10-31'],SK:['04-15','10-31'],MB:['04-15','10-31'],ON:['04-15','10-31'],QC:['04-15','10-31'],NS:['04-15','10-31'],NB:['04-21','10-31'],PE:['04-16','11-14'],NL:['04-01','11-30']};
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const md=x=>MONTHS[+x.slice(0,2)-1]+' '+(+x.slice(3));
+const THIS_YEAR=yest.getFullYear(),YEARS=[];for(let y=THIS_YEAR;y>=THIS_YEAR-5;y--)YEARS.push(y);
+const picked=new Set([THIS_YEAR-1]);
+YEARS.forEach(y=>{const b=document.createElement('button');b.type='button';b.className='yr';b.id='yr'+y;b.textContent=y;b.setAttribute('aria-pressed',picked.has(y));
+  tap(b,()=>{if(b.disabled)return;picked.has(y)?picked.delete(y):picked.add(y);b.setAttribute('aria-pressed',picked.has(y));yearsChanged()});$('years').append(b)});
+function seasonOf(pv){return SEASON[pv]||SEASON.NS}
+function ranges(){ // one date range per picked year, oldest first; the current season stops at yesterday
+  const pv=$('prov').value;if(!pv)return [];const [a,b]=seasonOf(pv),last=iso(yest);
+  return [...picked].sort().map(y=>({y,from:`${y}-${a}`,to:`${y}-${b}`<last?`${y}-${b}`:last})).filter(r=>r.from<=last);
+}
+function yearsChanged(){
+  const pv=$('prov').value,note=$('perNote'),last=iso(yest);
+  YEARS.forEach(y=>{const b=$('yr'+y);const st=pv?`${y}-${seasonOf(pv)[0]}`:`${y}-03-01`;b.disabled=st>last;if(b.disabled&&picked.has(y)){picked.delete(y);b.setAttribute('aria-pressed','false')}});
+  if(!pv){note.hidden=true}
+  else{const [a,b]=seasonOf(pv);let t=`${PROV[pv]} active season (Golf Canada): ${md(a)} to ${md(b)}.`;
+    if(picked.has(THIS_YEAR)&&`${THIS_YEAR}-${b}`>last)t+=` The ${THIS_YEAR} season is still under way, so its data runs to ${md(last.slice(5))}.`;
+    if(pv==='BC')t+=' Some Lower Mainland and Vancouver Island courses post scores year-round.';
+    note.textContent=t;note.hidden=false}
+  if(course)refreshStations();
+}
+$('prov').addEventListener('change',yearsChanged);
+yearsChanged();
 function f1(x){return x==null?'':x.toFixed(1)}
-function render(from,to,h1,h2){
+function expectedHours(R,c,a,b){let n=0;for(const r of R)for(let d=r.from;d<=r.to;d=addDays(d,1)){const w=dayWindow(d,c,a,b);if(!w)continue;if(w.lo===-Infinity){n+=24;continue}
+  const lo=Math.ceil(w.lo/36e5),hi=Math.floor(w.hi/36e5);if(hi>=lo)n+=hi-lo+1}return n}
+const winText=(a,b)=>`${offLabel(a,'sunrise','+')} to ${offLabel(b,'sunset','\u2212')}`;
+function render(R,a,b){
   const s=summarise(rows);
   $('results').hidden=$('detail').hidden=false;
-  const allDay=h1==0&&h2==23;
-  $('resTitle').textContent=`${course.name}: wind at ${station.name} (${station.km.toFixed(0)} km ${station.dir}), ${nice(from)} to ${nice(to)}, ${to.slice(0,4)}, ${allDay?'all hours':hourLabel(h1)+' to '+hourLabel(h2)}`;
-  const expected=(Math.round((new Date(to)-new Date(from))/864e5)+1)*(h2-h1+1);
+  $('resTitle').textContent=`${course.name}: wind at ${station.name} (${station.km.toFixed(0)} km ${station.dir}), ${R.length==1?'active season '+R[0].y:'active seasons '+R.map(r=>r.y).join(', ')} (${md(seasonOf($('prov').value)[0])} to ${md(seasonOf($('prov').value)[1])}), ${winText(a,b)}`;
+  const expected=Math.max(1,expectedHours(R,course,a,b));
   const tiles=[[f1(s.avg)+' km/h','Average wind speed'],[s.max+' km/h','Highest hourly speed'],[s.dir||'n/a','Most common direction'],[f1(s.calm)+'%','Calm hours'],[s.n.toLocaleString(),`Readings used (${Math.min(100,s.n/expected*100).toFixed(0)}% of hours)`]];
   $('tiles').innerHTML='';tiles.forEach(([b,l])=>{const d=document.createElement('div');d.className='tile';const x=document.createElement('b');x.textContent=b;const y=document.createElement('span');y.textContent=l;d.append(x,y);$('tiles').append(d)});
   const tabs=$('tabs');tabs.innerHTML='';
-  [['day','By day'],['week','By week (Mon to Sun)'],['month','By month'],['hour','By hour of day']].forEach(([m,l])=>{const b=document.createElement('button');b.className='tab';b.textContent=l;b.setAttribute('role','tab');b.setAttribute('aria-selected',m==mode);tap(b,()=>{mode=m;[...tabs.children].forEach(c=>c.setAttribute('aria-selected',c===b));renderDetail()});tabs.append(b)});
+  [['day','By day'],['week','By week (Mon to Sun)'],['month','By month'],['year','By year'],['hour','By hour of day']].forEach(([m,l])=>{const b=document.createElement('button');b.className='tab';b.textContent=l;b.setAttribute('role','tab');b.setAttribute('aria-selected',m==mode);tap(b,()=>{mode=m;[...tabs.children].forEach(c=>c.setAttribute('aria-selected',c===b));renderDetail()});tabs.append(b)});
   renderDetail();
 }
 function renderDetail(){
   groups=groupBy(rows,mode);
   const full={week:7}[mode];
-  const t=$('sumTable');t.innerHTML=`<tr><th>${{day:'Day',week:'Week',month:'Month',hour:'Hour'}[mode]}</th><th>Avg speed (km/h)</th><th>Highest hour (km/h)</th><th>Most common direction</th><th>Calm hours</th><th>Readings</th>${mode=='day'?'':'<th>Days with data</th>'}</tr>`;
+  const t=$('sumTable');t.innerHTML=`<tr><th>${{day:'Day',week:'Week',month:'Month',year:'Year',hour:'Hour'}[mode]}</th><th>Avg speed (km/h)</th><th>Highest hour (km/h)</th><th>Most common direction</th><th>Calm hours</th><th>Readings</th>${mode=='day'?'':'<th>Days with data</th>'}</tr>`;
   for(const g of groups){const tr=document.createElement('tr');
     const c0=document.createElement('td');c0.textContent=g.label+' ';if(full&&g.days<full&&g.n){const p=document.createElement('span');p.className='pill';p.textContent='part week';c0.append(p)}tr.append(c0);
     const cells=[f1(g.avg),g.max??'',g.dir,g.n?f1(g.calm)+'%':'',g.n];if(mode!='day')cells.push(g.days);
@@ -358,7 +408,7 @@ function drawChart(){
 function download(name,lines){const b=new Blob(['﻿'+lines.join('\r\n')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000)}
 const q=s=>`"${String(s??'').replace(/"/g,'""')}"`, slug=()=>course.name.replace(/[^A-Za-z0-9]+/g,'_');
 tap($('dlSum'),()=>download(`${slug()}_wind_by_${mode}.csv`,[['Course','Station','Climate ID','Distance km','Period','Avg speed km/h','Highest hour km/h','Most common direction','Calm hours %','Readings','Days with data'].map(q).join(','),...groups.map(g=>[course.name,station.name,station.cid,station.km.toFixed(0),g.label,f1(g.avg),g.max??'',g.dir,g.n?f1(g.calm):'',g.n,g.days].map(q).join(','))]));
-tap($('dlHr'),()=>download(`${slug()}_wind_hourly.csv`,['Date,Hour (clock),Wind speed km/h,Wind direction (degrees true)',...rows.map(r=>[r.date,r.hour,r.spd??'',r.dir==null?'':r.dir*10].join(','))]));
+tap($('dlHr'),()=>download(`${slug()}_wind_hourly.csv`,['Date,Hour (clock),Wind speed km/h,Wind direction (degrees true),Sunrise,Sunset',...rows.map(r=>[r.date,r.hour,r.spd??'',r.dir==null?'':r.dir*10,r.rise,r.set].join(','))]));
 </script>
 </body>
 </html>
