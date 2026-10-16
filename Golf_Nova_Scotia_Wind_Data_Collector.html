@@ -21,7 +21,22 @@
   --brand:#3d9be0; --brand-ink:#06111f; --accent:#3d9be0; --accent-ink:#06111f; --accent-soft:#1a3252; --warn:#f0b65a; --warn-soft:#3a2d12; --bad:#ff8a80; color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;border-top:6px solid var(--brand);background:var(--bg);color:var(--ink);font:15px/1.45 var(--body)}
-.wrap{max-width:1040px;margin:0 auto;padding-inline:16px;padding-block:22px 48px;display:flex;flex-direction:column;gap:18px}
+.layout{display:grid;grid-template-columns:300px minmax(0,1fr);align-items:start;min-height:100vh}
+.layout.nosidebar{grid-template-columns:minmax(0,1fr)}.layout.nosidebar .side{display:none}
+.side{background:var(--panel);border-right:1px solid var(--line);padding:20px 20px 40px;min-height:100vh;position:sticky;top:0;max-height:100vh;overflow-y:auto;color:var(--muted);font-size:13.5px}
+.side-btn,.side-show{background:var(--panel);color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:6px 10px;font:600 12px/1.2 var(--body);cursor:pointer}
+.side-btn:hover,.side-show:hover{background:var(--accent-soft)}
+.side-show{display:block;margin:12px 0 0 16px}.side-show[hidden]{display:none}
+.step output{white-space:nowrap}
+@media (min-width:881px) and (max-width:1320px){.layout:not(.nosidebar) .grid{grid-template-columns:1fr 1.4fr}.layout:not(.nosidebar) .grid>div:nth-child(3){grid-column:1/-1}.layout:not(.nosidebar) .grid2{grid-template-columns:1fr 1fr}}
+.notes h1{font:700 17px/1.2 var(--display);color:var(--brand);margin:16px 0 8px}
+.notes h2{font:600 12px/1.2 var(--body);text-transform:uppercase;letter-spacing:.06em;color:var(--ink);margin:16px 0 5px}
+.notes h3{font:600 13px/1.3 var(--body);color:var(--ink);margin:12px 0 4px}
+.notes p{margin:6px 0;line-height:1.5}.notes ul,.notes ol{margin:4px 0;padding-left:18px}.notes li{margin:3px 0;line-height:1.45}
+.notes a,.side-edit a{color:var(--accent)}.notes code{font-size:12px;background:var(--bg);padding:1px 4px;border-radius:3px}
+.side-edit{margin-top:20px;font-size:12px}
+@media (max-width:880px){.layout{grid-template-columns:minmax(0,1fr)}.side{order:2;position:static;min-height:0;max-height:none;border-right:0;border-top:1px solid var(--line)}}
+.wrap{max-width:1040px;margin:0 auto;width:100%;box-sizing:border-box;padding-inline:16px;padding-block:22px 48px;display:flex;flex-direction:column;gap:18px}
 header{border-bottom:3px solid var(--accent);padding-bottom:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
 .htext{min-width:0}
 .logo{flex:none;width:112px;height:auto;background:#fff;border-radius:6px;padding:6px}
@@ -88,20 +103,38 @@ th{font:600 12px/1.2 var(--body);text-transform:uppercase;letter-spacing:.05em;c
 .stnbox th{position:sticky;top:0;background:var(--panel);z-index:1}
 .stations tr.sel{background:var(--accent-soft)}
 .stations input{accent-color:var(--accent)}
+.stations a{color:var(--accent);font-weight:600}
+#stnMap{height:340px;border:1px solid var(--line);border-radius:5px;margin-bottom:6px;background:var(--bg)}
+.maplegend{margin:0 0 12px}.lg{display:inline-block;width:11px;height:11px;border-radius:50%;vertical-align:-1px;margin-right:3px;border:2px solid #fff;box-shadow:0 0 0 1px #556}
+.lg-on{background:#0076be}.lg-off{background:#fff;border-color:#14335f}.lg-na{background:#b8c0cc}.lg-c{width:auto;height:auto;border:0;box-shadow:none;font-size:14px}
+.cpin{font-size:22px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+.leaflet-tooltip.clabel{font-weight:600;color:#14335f}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .tile{border-left:3px solid var(--accent);padding:2px 0 2px 12px}
 .tile b{display:block;color:var(--brand);font:700 28px/1.1 var(--display);font-variant-numeric:tabular-nums}
 .tile span{color:var(--muted);font-size:13px}
+.avgline{display:flex;justify-content:center;gap:36px;flex-wrap:wrap;margin:6px 0 18px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.avgline .tile b{font-size:35px}.avgline .tile span{font-size:16.25px}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 .tab{background:transparent;border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer;font-weight:500}
 .tab[aria-selected=true]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
 svg{display:block;width:100%;height:auto}
+.leaflet-container svg{width:auto;height:auto;max-width:none;display:inline}
 svg text{fill:var(--muted);font:12px var(--body)}
 .pill{display:inline-block;padding:1px 8px;border-radius:999px;background:var(--warn-soft);color:var(--warn);font-size:12px;font-weight:600}
 #tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);padding:5px 8px;border-radius:4px;font-size:13px;z-index:9}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 </head>
 <body>
+<button id="notesShow" class="side-show" type="button" hidden>&raquo; Show notes</button>
+<div class="layout" id="layout">
+<aside class="side" id="side" aria-label="Notes">
+  <button id="notesHide" class="side-btn" type="button">&laquo; Hide</button>
+  <div class="notes" id="notes"><p class="note">Loading notes&hellip;</p></div>
+  <p class="side-edit"><a href="https://github.com/mikekmckenzie/Golf-Canada-Wind-Data/edit/main/notes.md" target="_blank" rel="noopener">Edit these notes on GitHub</a></p>
+</aside>
 <div class="wrap">
 <header>
   <div class="htext"><h1><span class="h1a">Golf Nova Scotia</span><br>Wind Data Collector</h1>
@@ -131,15 +164,18 @@ svg text{fill:var(--muted);font:12px var(--body)}
 <section class="panel" id="stationPanel" hidden>
   <h2 id="stationTitle">Nearest wind stations</h2>
   <div id="stationMsg"></div>
+  <div class="mapwrap" id="mapWrap"><div id="stnMap" role="region" aria-label="Map of the course and wind stations"></div>
+  <p class="note maplegend"><span class="lg lg-c">&#9971;</span> Course &nbsp; <span class="lg lg-on"></span> Selected station &nbsp; <span class="lg lg-off"></span> Other station &nbsp; <span class="lg lg-na"></span> No data for your years. Click a station on the map to select or unselect it.</p></div>
   <div class="row" style="margin-bottom:10px"><input type="text" id="stnFilter" placeholder="Filter stations by name, e.g. Stanfield" style="max-width:340px" aria-label="Filter stations by name"><span class="note" id="stnCount"></span></div>
   <div class="scroll stnbox"><table class="stations" id="stationTable"></table></div>
-  <p class="note" style="margin:10px 0 0">Every wind station within 100 km is listed, closest first; the five nearest show here, so scroll or filter to see the rest. The closest station with hourly data covering your years is ticked. Tick more to include them, for example an airport or one on the same coast; their readings are combined. Some airports have two records for the same site.</p>
+  <p class="note" style="margin:10px 0 0">Every wind station within 100 km is listed, closest first; the five nearest show here, so scroll or filter to see the rest. The closest station with hourly data covering your years is ticked. Tick more to include them, for example an airport or one on the same coast; their readings are combined. Some airports have two records for the same site. The map above shows the course and every station; zoom out to see them all. Use the Satellite link to see a station&rsquo;s surroundings in Google Maps; station positions are given to about 10 m.</p>
   <div class="gobar"><button class="btn" id="go" disabled>Get wind data</button><p class="note" id="status"></p></div>
 </section>
 
 <section class="panel" id="results" hidden>
   <h2 id="resTitle"></h2>
   <dl class="resinfo" id="resInfo"></dl>
+  <div class="avgline" id="avgLine"></div>
   <div class="tiles" id="tiles"></div>
 </section>
 
@@ -152,29 +188,8 @@ svg text{fill:var(--muted);font:12px var(--body)}
   <div class="scroll" style="margin-top:12px"><table id="sumTable"></table></div>
 </section>
 
-<section class="about">
-  <h2>About the data</h2>
-  <div class="aboutgrid">
-    <div><h3>Wind readings</h3><ul>
-      <li>Hourly climate data from Environment and Climate Change Canada (api.weather.gc.ca). Recent readings are preliminary.</li>
-      <li>Speeds are in km/h. Direction is where the wind blows from.</li>
-      <li>Times are local clock time at the course.</li>
-      <li>When several stations are selected, all their readings are pooled before averaging. The &ldquo;By station&rdquo; tab shows each one separately.</li>
-      <li>A station can be many kilometres from the course and in different terrain, so treat the numbers as a guide to the area, not a measurement at the course.</li></ul></div>
-    <div><h3>Seasons and daylight</h3><ul>
-      <li>Each year covers Golf Canada&rsquo;s handicap active season for the province.</li>
-      <li>Sunrise and sunset are calculated for the course location each day (NOAA solar equations).</li>
-      <li>An hourly reading is used when its time falls inside that day&rsquo;s window.</li></ul></div>
-    <div><h3>Course locations</h3><ul>
-      <li>From OpenStreetMap; Ontario and Quebec from GolfPass.</li>
-      <li>Courses marked &ldquo;Town Location&rdquo; are placed at the named town.</li></ul></div>
-    <div><h3>Course elevation</h3><ul>
-      <li>From Natural Resources Canada&rsquo;s Canadian Digital Elevation Model.</li>
-      <li>Where the course outline is mapped, it shows the lowest and highest of about 50 points across the course, and their average.</li>
-      <li>Otherwise it is a single point at the course location and is approximate. For town locations it is the town&rsquo;s elevation.</li></ul></div>
-  </div>
-</section>
 <footer class="foot"><p class="copy">&copy; 2026 Golf Nova Scotia. All rights reserved.</p><p>Wind data: Environment and Climate Change Canada (Open Government Licence &ndash; Canada). Course locations &copy; OpenStreetMap contributors. Elevation: Natural Resources Canada (Open Government Licence &ndash; Canada).</p></footer>
+</div>
 </div>
 <div id="tip" hidden></div>
 
@@ -336,19 +351,22 @@ function refreshStations(){
   if(!near.length){msg.innerHTML=`<p class="msg bad">No wind station within ${MAX_KM} km of this course.</p>`}
   else if(!station){msg.innerHTML='<p class="msg bad">No station within 100 km has hourly data for the years selected. Try more recent years.</p>'}
   else if(!station.covers){msg.innerHTML='<p class="msg">No nearby station covers all the years selected. The selected station covers part of them.</p>'}
-  const t=$('stationTable');t.innerHTML='<tr><th>Station</th><th>Distance</th><th>Direction from course</th><th>Elevation</th><th>Hourly data</th></tr>';
+  const t=$('stationTable');t.innerHTML='<tr><th>Station</th><th>Distance</th><th>Direction from course</th><th>Elevation</th><th>Hourly data</th><th>Map</th></tr>';
   near.forEach(s=>{const tr=document.createElement('tr');tr.dataset.name=(s.name+' '+s.type+' '+s.cid).toLowerCase();if(s===station)tr.className='sel';
     const td=document.createElement('td');const lab=document.createElement('label');lab.style.cssText='text-transform:none;letter-spacing:0;font:inherit;color:inherit;margin:0;display:flex;gap:8px;align-items:baseline;cursor:pointer';
     const rb=document.createElement('input');rb.type='checkbox';rb.name='stn';rb.checked=s===station;rb.disabled=!s.partial;rb.id='stn'+s.id;
-    const sync=()=>{tr.classList.toggle('sel',rb.checked);chosen=near.filter(x=>$('stn'+x.id)&&$('stn'+x.id).checked);station=chosen[0]||null;$('go').disabled=!chosen.length};
+    const sync=()=>{tr.classList.toggle('sel',rb.checked);chosen=near.filter(x=>$('stn'+x.id)&&$('stn'+x.id).checked);station=chosen[0]||null;$('go').disabled=!chosen.length;mapMarks()};
+    s._toggle=()=>{if(rb.disabled)return;rb.checked=!rb.checked;sync()};
     rb.addEventListener('change',sync);rb.addEventListener('click',e=>e.stopPropagation());rb.addEventListener('pointerup',e=>e.stopPropagation());
     const choose=e=>{if(rb.disabled||e.target===rb)return;rb.checked=!rb.checked;sync()};tap(tr,choose);tr.style.cursor='pointer';
     const nm=document.createElement('span');nm.textContent=`${s.name}, ${s.prov} `;const sm=document.createElement('small');sm.className='note';sm.textContent=`(${s.type}, ID ${s.cid})`;nm.append(sm);
     lab.append(rb,nm);td.append(lab);tr.append(td);
     const span=`${s.first} to ${s.last>'9999'?'present':s.last}`;const cov=s.covers?'Covers your years':s.partial?`Partial: ${span}`:`None: ${span}`;
-    [`${s.km.toFixed(0)} km`,s.dir,`${Math.round(s.elev)} m`,cov].forEach(x=>{const c=document.createElement('td');c.textContent=x;tr.append(c)});t.append(tr)});
+    [`${s.km.toFixed(0)} km`,s.dir,`${Math.round(s.elev)} m`,cov].forEach(x=>{const c=document.createElement('td');c.textContent=x;tr.append(c)});
+    const mc=document.createElement('td');const ml=document.createElement('a');ml.href=`https://www.google.com/maps/@?api=1&map_action=map&center=${s.lat},${s.lon}&zoom=18&basemap=satellite`;ml.target='_blank';ml.rel='noopener';ml.textContent='Satellite';ml.title='Open the station site in Google Maps satellite view';
+    for(const ev of ['click','pointerup'])ml.addEventListener(ev,e=>e.stopPropagation());mc.append(ml);tr.append(mc);t.append(tr)});
   $('go').disabled=!station;
-  const box=t.closest('.stnbox'),rs=[...t.rows].slice(0,6);box.style.maxHeight=(rs.reduce((h,r)=>h+r.offsetHeight,0)+2||230)+'px';box.scrollTop=0;
+  const box=t.closest('.stnbox'),rs=[...t.rows].slice(0,6);box.style.maxHeight=(rs.reduce((h,r)=>h+r.offsetHeight,0)+2||230)+'px';box.scrollTop=0;drawMap(near);
   $('stnFilter').value='';$('stnCount').textContent=`${near.length} station${near.length==1?'':'s'} within ${MAX_KM} km`;
 }
 $('stnFilter').addEventListener('input',e=>{const q=e.target.value.trim().toLowerCase();[...$('stationTable').rows].slice(1).forEach(r=>r.hidden=!!q&&!r.dataset.name.includes(q))});
@@ -415,7 +433,8 @@ function render(R,a,b){
     ['Daylight hours included',winText(a,b).replace(/^s/,'S')]];
   const dl=$('resInfo');dl.innerHTML='';info.forEach(([k,v])=>{const dt=document.createElement('dt');dt.textContent=k;const dd=document.createElement('dd');dd.textContent=v;dl.append(dt,dd)});
   const expected=Math.max(1,expectedHours(R,course,a,b)*chosen.length);
-  const tiles=[[f1(s.avg)+' km/h','Average wind speed'],[s.max+' km/h','Highest hourly speed'],[s.dir||'n/a','Most common direction'],[f1(s.calm)+'%','Calm hours'],[s.n.toLocaleString(),`Readings used (${Math.min(100,s.n/expected*100).toFixed(0)}% of hours)`]];
+  const tiles=[[s.max+' km/h','Highest hourly speed'],[s.dir||'n/a','Most common direction'],[f1(s.calm)+'%','Calm hours'],[s.n.toLocaleString(),`Readings used (${Math.min(100,s.n/expected*100).toFixed(0)}% of hours)`]];
+  const av=$('avgLine');av.innerHTML='';[[f1(s.avg)+' km/h','Average wind speed (kilometres per hour)'],[f1(s.avg==null?null:s.avg/1.609344)+' mph','Average wind speed (miles per hour)']].forEach(([b,l])=>{const d=document.createElement('div');d.className='tile';const x=document.createElement('b');x.textContent=b;const y=document.createElement('span');y.textContent=l;d.append(x,y);av.append(d)});
   $('tiles').innerHTML='';tiles.forEach(([b,l])=>{const d=document.createElement('div');d.className='tile';const x=document.createElement('b');x.textContent=b;const y=document.createElement('span');y.textContent=l;d.append(x,y);$('tiles').append(d)});
   const tabs=$('tabs');tabs.innerHTML='';
   [['day','By day'],['week','By week (Mon to Sun)'],['month','By month'],['year','By year'],['station','By station'],['hour','By hour of day']].forEach(([m,l])=>{const b=document.createElement('button');b.className='tab';b.textContent=l;b.setAttribute('role','tab');b.setAttribute('aria-selected',m==mode);tap(b,()=>{mode=m;[...tabs.children].forEach(c=>c.setAttribute('aria-selected',c===b));renderDetail()});tabs.append(b)});
@@ -455,6 +474,57 @@ function download(name,lines){const b=new Blob(['﻿'+lines.join('\r\n')],{type:
 const q=s=>`"${String(s??'').replace(/"/g,'""')}"`, slug=()=>course.name.replace(/[^A-Za-z0-9]+/g,'_');
 tap($('dlSum'),()=>download(`${slug()}_wind_by_${mode}.csv`,[['Course','Station','Climate ID','Distance km','Period','Avg speed km/h','Highest hour km/h','Most common direction','Calm hours %','Readings','Days with data'].map(q).join(','),...groups.map(g=>[course.name,chosen.map(x=>x.name).join(' + '),chosen.map(x=>x.cid).join(' + '),chosen.map(x=>x.km.toFixed(0)).join(' + '),g.label,f1(g.avg),g.max??'',g.dir,g.n?f1(g.calm):'',g.n,g.days].map(q).join(','))]));
 tap($('dlHr'),()=>download(`${slug()}_wind_hourly.csv`,['Station,Date,Hour (clock),Wind speed km/h,Wind direction (degrees true),Sunrise,Sunset',...rows.map(r=>[q(r.stn),r.date,r.hour,r.spd??'',r.dir==null?'':r.dir*10,r.rise,r.set].join(','))]));
+/* ---------- Station map (Leaflet, Esri World Imagery) ---------- */
+let MAP=null,MLAYER=null,MNEAR=[];
+function drawMap(near){
+  MNEAR=near;const wrap=$('mapWrap');
+  if(!window.L){wrap.hidden=true;return}
+  wrap.hidden=false;
+  if(!MAP){MAP=L.map('stnMap',{scrollWheelZoom:false});
+    const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Imagery &copy; Esri, Maxar, Earthstar Geographics'});
+    const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'});
+    sat.addTo(MAP);L.control.layers({'Satellite':sat,'Street map':osm},null,{position:'topright'}).addTo(MAP);L.control.scale({imperial:false}).addTo(MAP);
+    MAP.on('click',()=>MAP.scrollWheelZoom.enable());}
+  MAP.invalidateSize();mapMarks();
+  const pts=[[course.lat,course.lon],...near.slice(0,5).map(s=>[s.lat,s.lon])];
+  MAP.fitBounds(L.latLngBounds(pts).pad(0.15),{maxZoom:14});
+}
+function mapMarks(){
+  if(!MAP)return;if(MLAYER)MLAYER.remove();MLAYER=L.layerGroup().addTo(MAP);
+  L.circle([course.lat,course.lon],{radius:MAX_KM*1000,color:'#ffffff',weight:1,opacity:.6,fill:false,dashArray:'4 6',interactive:false}).addTo(MLAYER);
+  for(const s of [...MNEAR].reverse()){const on=chosen.includes(s),na=!s.partial;
+    const m=L.circleMarker([s.lat,s.lon],{radius:on?9:7,color:on||na?'#ffffff':'#14335f',weight:2,fillColor:na?'#b8c0cc':on?'#0076be':'#ffffff',fillOpacity:1}).addTo(MLAYER);
+    m.bindTooltip(`${s.name} – ${s.km.toFixed(0)} km ${s.dir}${na?' (no data for your years)':on?' (selected)':''}`,{direction:'top',offset:[0,-6]});
+    m.on('click',()=>{if(s._toggle)s._toggle()});}
+  L.marker([course.lat,course.lon],{icon:L.divIcon({className:'cpin',html:'⛳',iconSize:[24,24],iconAnchor:[6,22]}),zIndexOffset:1000,keyboard:false})
+    .bindTooltip(course.name+(course.approx?' (town location)':''),{direction:'right',offset:[10,-12],className:'clabel'}).addTo(MLAYER);
+}
+
+/* ---------- Notes sidebar: loaded from notes.md in the GitHub repository ---------- */
+const NOTES_FALLBACK="# About the data\n\n## Wind readings\n- Hourly climate data from Environment and Climate Change Canada (api.weather.gc.ca). Recent readings are preliminary.\n- Speeds are in km/h. Direction is where the wind blows from.\n- Times are local clock time at the course.\n- When several stations are selected, all their readings are pooled before averaging. The \"By station\" tab shows each one separately.\n- A station can be many kilometres from the course and in different terrain, so treat the numbers as a guide to the area, not a measurement at the course.\n\n## Seasons and daylight\n- Each year covers Golf Canada's handicap active season for the province.\n- Sunrise and sunset are calculated for the course location each day (NOAA solar equations).\n- An hourly reading is used when its time falls inside that day's window.\n\n## Course locations\n- From OpenStreetMap; Ontario and Quebec from GolfPass.\n- Courses marked \"Town Location\" are placed at the named town.\n\n## Course elevation\n- From Natural Resources Canada's Canadian Digital Elevation Model.\n- Where the course outline is mapped, it shows the lowest and highest of about 50 points across the course, and their average.\n- Otherwise it is a single point at the course location and is approximate. For town locations it is the town's elevation.\n";
+function mdInline(t){const e=t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return e.replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/(^|[^*])\*([^*]+)\*/g,'$1<em>$2</em>')
+   .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>')}
+function mdToHtml(md){let h='',list=null,para=[];
+  const flushP=()=>{if(para.length){h+='<p>'+mdInline(para.join(' '))+'</p>';para=[]}};
+  const flushL=()=>{if(list){h+='</'+list+'>';list=null}};
+  for(const raw of md.replace(/\r/g,'').split('\n')){const l=raw.trimEnd();let m;
+    if(!l.trim()){flushP();flushL();continue}
+    if(m=l.match(/^(#{1,3})\s+(.*)$/)){flushP();flushL();const n=m[1].length;h+=`<h${n}>${mdInline(m[2])}</h${n}>`;continue}
+    if(m=l.match(/^\s*[-*]\s+(.*)$/)){flushP();if(list!=='ul'){flushL();h+='<ul>';list='ul'}h+='<li>'+mdInline(m[1])+'</li>';continue}
+    if(m=l.match(/^\s*\d+[.)]\s+(.*)$/)){flushP();if(list!=='ol'){flushL();h+='<ol>';list='ol'}h+='<li>'+mdInline(m[1])+'</li>';continue}
+    flushL();para.push(l.trim())}
+  flushP();flushL();return h}
+async function loadNotes(){
+  const box=$('notes'),srcs=['notes.md','https://raw.githubusercontent.com/mikekmckenzie/Golf-Canada-Wind-Data/main/notes.md'];
+  for(const u of srcs){try{const r=await fetch(u+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)continue;const t=await r.text();if(!t.trim()||/^\s*</.test(t))continue;box.innerHTML=mdToHtml(t);return}catch(e){}}
+  box.innerHTML=mdToHtml(NOTES_FALLBACK);
+}
+loadNotes();
+{const L=$('layout'),show=$('notesShow');
+ const set=hide=>{L.classList.toggle('nosidebar',hide);show.hidden=!hide;try{localStorage.setItem('gnsNotesHidden',hide?'1':'0')}catch(e){}};
+ tap($('notesHide'),()=>set(true));tap(show,()=>set(false));
+ let h=false;try{h=localStorage.getItem('gnsNotesHidden')==='1'}catch(e){}if(h)set(true);}
 </script>
 </body>
 </html>
